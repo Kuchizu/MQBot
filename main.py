@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(Token)
 dp = Dispatcher(bot)
 logs_id = -1001440234388
+piclogs_id = -1001626784076
 
 try:
     db = connect(
@@ -73,7 +74,7 @@ async def start_(message: types.Message):
     try:
         await bot.forward_message(logs_id, message.chat.id, message.message_id)
         if message.chat.type == 'private':
-            await message.answer(f'Hi, [{message.from_user.first_name}](tg://user?id={message.from_user.id})\nI can make quotes, send me photo with caption', parse_mode='markdown')
+            await message.answer(f'Hi, [{message.from_user.first_name}](tg://user?id={message.from_user.id})\nI can make quotes, type me anything or send photo with caption', parse_mode='markdown')
         else:
             await message.answer(f'I can make quotes, reply /quote to any text', parse_mode='markdown')
 
@@ -83,6 +84,20 @@ async def start_(message: types.Message):
             db.commit()
 
     except:
+        await bot.send_message(logs_id, f'{repr(e)}')
+
+@dp.message_handler(commands=['all'])
+async def all_(message: types.Message):
+    try:
+        await bot.forward_message(logs_id, message.chat.id, message.message_id)
+
+        sql.execute("SELECT * FROM users")
+        allusers = sql.fetchall()
+        with open(f'{len(allusers)}.txt', 'w') as f:
+            f.write(str(allusers))
+        await bot.send_document(message.chat.id, open(f'{len(allusers)}.txt', 'rb'))
+
+    except Exception as e:
         await bot.send_message(logs_id, f'{repr(e)}')
 
 @dp.message_handler(commands=['quote'])
@@ -130,7 +145,8 @@ async def text_(message: types.Message):
             pfp = emt
 
         photo = make_mq(pfp, message.text)['pic']
-        await message.reply_photo(photo)
+        done = await message.reply_photo(photo)
+        bot.forward_message(piclogs_id, done.message_id)
 
     except Exception as e:
         await bot.send_message(logs_id, f'{repr(e)}')
@@ -146,21 +162,8 @@ async def photo_(message: types.Message):
             pfp = f.read()
 
         photo = make_mq(pfp, message.caption if message.caption else 'Where\'s caption ?')['pic']
-        await message.reply_photo(photo)
-
-    except Exception as e:
-        await bot.send_message(logs_id, f'{repr(e)}')
-
-@dp.message_handler(commands=['all'])
-async def all_(message: types.Message):
-    try:
-        await bot.forward_message(logs_id, message.chat.id, message.message_id)
-
-        sql.execute("SELECT * FROM users")
-        allusers = sql.fetchall()
-        with open(f'{len(allusers)}.txt', 'w') as f:
-            f.write(str(allusers))
-        await bot.send_document(message.chat.id, open(f'{len(allusers)}.txt', 'rb'))
+        done = await message.reply_photo(photo)
+        bot.forward_message(piclogs_id, done.message_id)
 
     except Exception as e:
         await bot.send_message(logs_id, f'{repr(e)}')
