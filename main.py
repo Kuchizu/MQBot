@@ -34,7 +34,7 @@ sql.execute("""CREATE TABLE IF NOT EXISTS users(
     user_id Int
 )""")
 db.commit()
-get(f'https://api.telegram.org/bot{Token}/sendmessage?chat_id={logs_id}&text=Rebooted%20{robot}')
+get(f'https://api.telegram.org/bot{Token}/sendmessage?chat_id={logs_id}&text=Rebooted%20💀')
 
 
 def make_mq(pfp=emt, text='No text'):
