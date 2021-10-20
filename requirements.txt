@@ -1,0 +1,4 @@
+aiogram
+requests
+psycopg2
+pillow
