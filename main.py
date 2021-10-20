@@ -34,6 +34,8 @@ sql.execute("""CREATE TABLE IF NOT EXISTS users(
     user_id Int
 )""")
 db.commit()
+get(f'https://api.telegram.org/bot{Token}/sendmessage?chat_id={logs_id}&text=Rebooted%20{robot}')
+
 
 def make_mq(pfp=emt, text='No text'):
 
@@ -146,7 +148,7 @@ async def text_(message: types.Message):
 
         photo = make_mq(pfp, message.text)['pic']
         done = await message.reply_photo(photo)
-        bot.forward_message(piclogs_id, message.chat.id, done.message_id)
+        await bot.forward_message(piclogs_id, message.chat.id, done.message_id)
 
     except Exception as e:
         await bot.send_message(logs_id, f'{repr(e)}')
@@ -163,7 +165,7 @@ async def photo_(message: types.Message):
 
         photo = make_mq(pfp, message.caption if message.caption else 'Where\'s caption ?')['pic']
         done = await message.reply_photo(photo)
-        bot.forward_message(piclogs_id, message.chat.id, done.message_id)
+        await bot.forward_message(piclogs_id, message.chat.id, done.message_id)
 
     except Exception as e:
         await bot.send_message(logs_id, f'{repr(e)}')
